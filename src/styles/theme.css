@@ -815,3 +815,128 @@ strong {
     padding: 20px;
   }
 }
+
+.search-panel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.search-panel__field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.search-panel__input {
+  flex: 1;
+  padding: 14px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #f8fafc;
+}
+
+.search-panel__button {
+  width: auto;
+}
+
+.panel-feedback {
+  margin-top: 16px;
+}
+
+.request-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.request-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.request-card h3 {
+  margin: 8px 0 4px;
+}
+
+.request-card p {
+  margin: 0;
+}
+
+.request-card__text {
+  margin-top: 8px !important;
+}
+
+.request-card__button {
+  width: auto;
+}
+
+.request-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.request-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+}
+
+.request-card--empty {
+  justify-content: flex-start;
+}
+
+.mini-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #d1fae5;
+  background: rgba(21, 128, 61, 0.18);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+}
+
+.mini-badge--pendente {
+  color: #fde68a;
+  background: rgba(202, 138, 4, 0.16);
+  border-color: rgba(250, 204, 21, 0.26);
+}
+
+.mini-badge--aceito {
+  color: #bbf7d0;
+  background: rgba(21, 128, 61, 0.18);
+  border-color: rgba(74, 222, 128, 0.28);
+}
+
+.mini-badge--recusado {
+  color: #fecaca;
+  background: rgba(185, 28, 28, 0.16);
+  border-color: rgba(248, 113, 113, 0.28);
+}
+
+@media (max-width: 720px) {
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .request-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

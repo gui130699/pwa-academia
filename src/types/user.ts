@@ -15,6 +15,8 @@ export interface UsuarioBase {
 
 export interface UsuarioAluno extends UsuarioBase {
   tipoConta: 'aluno'
+  professorVinculadoId?: string
+  professorVinculadoNome?: string
 }
 
 export interface UsuarioProfessor extends UsuarioBase {
