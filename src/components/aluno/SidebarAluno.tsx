@@ -1,0 +1,62 @@
+import {
+  Bell,
+  CalendarDays,
+  Dumbbell,
+  LayoutDashboard,
+  LineChart,
+  MessageCircleMore,
+  Settings,
+  Target,
+} from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+
+const menuItems = [
+  { to: '/aluno/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/aluno/treinos', label: 'Treinos', icon: Dumbbell },
+  { to: '/aluno/evolucao', label: 'Evolução', icon: LineChart },
+  { to: '/aluno/agenda', label: 'Agenda', icon: CalendarDays },
+  { to: '/aluno/metas', label: 'Metas', icon: Target },
+  { to: '/aluno/notificacoes', label: 'Notificações', icon: Bell },
+  { to: '/aluno/chat', label: 'Chat Professor', icon: MessageCircleMore },
+  { to: '/aluno/configuracoes', label: 'Configurações', icon: Settings },
+]
+
+export function SidebarAluno() {
+  return (
+    <aside className="aluno-sidebar">
+      <div className="aluno-sidebar__brand">
+        <div className="aluno-sidebar__logo">
+          <Dumbbell size={18} />
+        </div>
+        <div>
+          <strong>Fit Trainer App</strong>
+          <p>Painel do aluno</p>
+        </div>
+      </div>
+
+      <nav className="aluno-nav" aria-label="Menu do aluno">
+        {menuItems.map((item) => {
+          const Icon = item.icon
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `aluno-nav__link ${isActive ? 'is-active' : ''}`.trim()
+              }
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </NavLink>
+          )
+        })}
+      </nav>
+
+      <div className="aluno-sidebar__footer">
+        <span className="eyebrow">Fitness premium</span>
+        <p>Estrutura visual pronta para as próximas etapas do projeto.</p>
+      </div>
+    </aside>
+  )
+}

@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { DashboardPage } from '../pages/DashboardPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { PendingApprovalPage } from '../pages/PendingApprovalPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { VerifyEmailPage } from '../pages/VerifyEmailPage'
+import { alunoRoutes } from './AlunoRoutes'
 import { GuestRoute } from './GuestRoute'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -24,7 +24,7 @@ export function AppRouter() {
         <Route path="/aguardando-aprovacao" element={<PendingApprovalPage />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          {alunoRoutes}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
