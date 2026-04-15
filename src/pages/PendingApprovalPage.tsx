@@ -17,7 +17,7 @@ export function PendingApprovalPage() {
     }
 
     if (accessStatus === 'approved') {
-      navigate('/dashboard', { replace: true })
+      navigate('/aluno/dashboard', { replace: true })
     }
 
     if (accessStatus === 'verify-email') {

@@ -10,7 +10,7 @@ export function GuestRoute() {
   }
 
   if (user && accessStatus === 'approved') {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/aluno/dashboard" replace />
   }
 
   if (user && accessStatus === 'verify-email') {

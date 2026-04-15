@@ -39,7 +39,7 @@ export function LoginPage() {
 
     try {
       await signIn(email, senha)
-      navigate('/dashboard')
+      navigate('/aluno/dashboard')
     } catch (currentError) {
       setError(
         getFirebaseErrorMessage(
