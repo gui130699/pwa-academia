@@ -1,14 +1,6 @@
 import { List, PlusSquare } from 'lucide-react'
 import { useState } from 'react'
 
-const exercisePlaceholders = [
-  'Agachamento livre',
-  'Supino reto',
-  'Remada baixa',
-  'Leg press',
-  'Desenvolvimento com halteres',
-]
-
 export function TreinosProfessor() {
   const [showExerciseList, setShowExerciseList] = useState(false)
 
@@ -36,20 +28,12 @@ export function TreinosProfessor() {
 
       {showExerciseList ? (
         <div className="section-block">
-          <h3 className="section-block__title">Exercícios cadastráveis</h3>
+          <h3 className="section-block__title">Lista de exercícios</h3>
 
-          <div className="compact-list">
-            {exercisePlaceholders.map((exercise) => (
-              <article key={exercise} className="compact-row compact-row--readonly">
-                <div className="compact-row__main">
-                  <strong>{exercise}</strong>
-                  <span>Estrutura visual pronta para uso futuro</span>
-                </div>
-
-                <span className="mini-badge">Exercício</span>
-              </article>
-            ))}
-          </div>
+          <article className="request-card request-card--empty">
+            <h3>Nenhum exercício cadastrado ainda</h3>
+            <p>Use o botão de cadastro para começar a montar sua biblioteca de exercícios.</p>
+          </article>
         </div>
       ) : null}
     </section>
