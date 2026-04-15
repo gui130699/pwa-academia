@@ -1000,6 +1000,13 @@ strong {
   border-color: rgba(248, 113, 113, 0.28);
 }
 
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 @media (max-width: 720px) {
   .search-panel,
   .overview-strip {
@@ -1011,5 +1018,9 @@ strong {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .section-actions {
+    flex-direction: column;
   }
 }
