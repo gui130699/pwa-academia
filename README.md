@@ -74,6 +74,7 @@ npm run firebase:login
 npm run firebase:init
 npm run firebase:deploy
 npm run github:create
+npm run approve:user -- -Email seuemail@exemplo.com
 ```
 
 ## Fluxo de Git e GitHub CLI
@@ -175,6 +176,12 @@ Professor:
 
 - A aprovação inicial do usuário fica como pendente até ajuste manual no Firestore.
 - Para liberar o acesso ao dashboard, altere o campo statusAprovacao para aprovado no documento do usuário.
+- Você também pode aprovar pelo terminal com:
+
+```powershell
+npm run approve:user -- -Email seuemail@exemplo.com
+```
+
 - A validação automática de credencial do professor ficou preparada para integração futura.
 - Se o app mostrar falhas de autenticação antes da configuração, basta preencher o arquivo .env.
 

@@ -14,7 +14,8 @@
     "github:create": "gh repo create pwa-academia --public --source=. --remote=origin --push",
     "firebase:login": "npx firebase-tools login",
     "firebase:init": "npx firebase-tools init hosting firestore",
-    "firebase:deploy": "npm run build && npx firebase-tools deploy"
+    "firebase:deploy": "npm run build && npx firebase-tools deploy",
+    "approve:user": "powershell -ExecutionPolicy Bypass -File ./scripts/approve-user.ps1"
   },
   "dependencies": {
     "firebase": "^12.12.0",
