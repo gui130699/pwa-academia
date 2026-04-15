@@ -20,6 +20,9 @@ coverage
 !.env.example
 *.local
 
+# Firebase local cache
+.firebase/
+
 # IDE and OS
 .vscode/*
 !.vscode/extensions.json
