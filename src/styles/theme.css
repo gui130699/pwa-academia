@@ -655,3 +655,163 @@ strong {
     padding: 20px;
   }
 }
+
+.professor-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+.professor-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 20px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  background: rgba(4, 10, 24, 0.96);
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.professor-sidebar__brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.professor-sidebar__logo {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #082f49;
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+}
+
+.professor-sidebar__brand p,
+.professor-sidebar__footer p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+}
+
+.professor-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.professor-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: #cbd5e1;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.professor-nav__link:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(148, 163, 184, 0.12);
+  color: #f8fafc;
+}
+
+.professor-nav__link.is-active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(59, 130, 246, 0.14));
+  border-color: rgba(125, 211, 252, 0.34);
+  color: #e0f2fe;
+  transform: translateX(2px);
+}
+
+.professor-main {
+  padding: 20px 24px 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.professor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.professor-header h1,
+.professor-page h2 {
+  margin: 6px 0 0;
+}
+
+.professor-header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  color: #e0f2fe;
+  background: rgba(3, 105, 161, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+}
+
+.professor-content {
+  display: grid;
+}
+
+.professor-page {
+  min-height: 320px;
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.82);
+  box-shadow: 0 18px 60px rgba(2, 6, 23, 0.28);
+}
+
+.professor-page p {
+  max-width: 620px;
+  color: #cbd5e1;
+}
+
+@media (max-width: 960px) {
+  .professor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .professor-sidebar {
+    position: relative;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .professor-nav {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .professor-main,
+  .professor-header {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .professor-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .professor-page {
+    min-height: 220px;
+    padding: 20px;
+  }
+}

@@ -7,6 +7,7 @@ import { RegisterPage } from '../pages/RegisterPage'
 import { VerifyEmailPage } from '../pages/VerifyEmailPage'
 import { alunoRoutes } from './AlunoRoutes'
 import { GuestRoute } from './GuestRoute'
+import { professorRoutes } from './ProfessorRoutes'
 import { ProtectedRoute } from './ProtectedRoute'
 
 export function AppRouter() {
@@ -25,6 +26,7 @@ export function AppRouter() {
 
         <Route element={<ProtectedRoute />}>
           {alunoRoutes}
+          {professorRoutes}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
