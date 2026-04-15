@@ -56,11 +56,25 @@ export async function syncEmailVerificationStatus(
     return
   }
 
-  await setDoc(
-    doc(db, 'usuarios', uid),
-    {
-      emailVerificado: true,
-    },
-    { merge: true },
-  )
+  const userRef = doc(db, 'usuarios', uid)
+  const snapshot = await getDoc(userRef)
+
+  if (!snapshot.exists()) {
+    return
+  }
+
+  const profile = snapshot.data() as UsuarioPerfil
+  const updatePayload: Record<string, unknown> = {
+    emailVerificado: true,
+  }
+
+  if (profile.statusAprovacao === 'pendente') {
+    updatePayload.statusAprovacao = 'aprovado'
+  }
+
+  if (profile.tipoConta === 'professor' && profile.credencialValidada === false) {
+    updatePayload.credencialValidada = true
+  }
+
+  await setDoc(userRef, updatePayload, { merge: true })
 }
