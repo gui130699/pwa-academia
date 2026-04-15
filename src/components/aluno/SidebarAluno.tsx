@@ -7,6 +7,7 @@ import {
   MessageCircleMore,
   Settings,
   Target,
+  Users,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
@@ -16,6 +17,7 @@ const menuItems = [
   { to: '/aluno/evolucao', label: 'Evolução', icon: LineChart },
   { to: '/aluno/agenda', label: 'Agenda', icon: CalendarDays },
   { to: '/aluno/metas', label: 'Metas', icon: Target },
+  { to: '/aluno/amigos', label: 'Amigos', icon: Users },
   { to: '/aluno/notificacoes', label: 'Notificações', icon: Bell },
   { to: '/aluno/chat', label: 'Chat Professor', icon: MessageCircleMore },
   { to: '/aluno/configuracoes', label: 'Configurações', icon: Settings },

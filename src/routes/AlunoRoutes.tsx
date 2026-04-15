@@ -2,6 +2,7 @@ import { Navigate, Route } from 'react-router-dom'
 import { LayoutAluno } from '../components/aluno/LayoutAluno'
 import { useAuth } from '../hooks/useAuth'
 import { AgendaAluno } from '../pages/aluno/AgendaAluno'
+import { AmigosAluno } from '../pages/aluno/AmigosAluno'
 import { ChatProfessorAluno } from '../pages/aluno/ChatProfessorAluno'
 import { ConfiguracoesAluno } from '../pages/aluno/ConfiguracoesAluno'
 import { DashboardAluno } from '../pages/aluno/DashboardAluno'
@@ -32,6 +33,7 @@ export const alunoRoutes = (
       <Route path="evolucao" element={<EvolucaoAluno />} />
       <Route path="agenda" element={<AgendaAluno />} />
       <Route path="metas" element={<MetasAluno />} />
+      <Route path="amigos" element={<AmigosAluno />} />
       <Route path="notificacoes" element={<NotificacoesAluno />} />
       <Route path="chat" element={<ChatProfessorAluno />} />
       <Route path="configuracoes" element={<ConfiguracoesAluno />} />

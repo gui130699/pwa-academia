@@ -1,9 +1,137 @@
+import { MessageCircleMore, Send } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../../hooks/useAuth'
+import { getProfessorChatContacts, sendChatMessage, subscribeToMessages } from '../../services/chatService'
+import type { ChatContact, ChatMessage } from '../../types/chat'
+import { getFirebaseErrorMessage } from '../../utils/firebaseErrorMessages'
+
 export function ChatAlunoProfessor() {
+  const { user, profile } = useAuth()
+  const [contacts, setContacts] = useState<ChatContact[]>([])
+  const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [text, setText] = useState('')
+  const [feedback, setFeedback] = useState('')
+
+  useEffect(() => {
+    async function loadContacts() {
+      if (!user) {
+        return
+      }
+
+      try {
+        const currentContacts = await getProfessorChatContacts(user.uid)
+        setContacts(currentContacts)
+        setSelectedContact(currentContacts[0] ?? null)
+      } catch (error) {
+        setFeedback(getFirebaseErrorMessage(error, 'Não foi possível carregar os contatos.'))
+      }
+    }
+
+    void loadContacts()
+  }, [user])
+
+  useEffect(() => {
+    if (!user || !selectedContact) {
+      setMessages([])
+      return
+    }
+
+    const unsubscribe = subscribeToMessages(user.uid, selectedContact, setMessages)
+    return unsubscribe
+  }, [selectedContact, user])
+
+  async function handleSendMessage() {
+    if (!user || !profile || !selectedContact || !text.trim()) {
+      return
+    }
+
+    try {
+      await sendChatMessage({
+        currentUserId: user.uid,
+        currentUserName: profile.nomeCompleto,
+        contact: selectedContact,
+        text,
+      })
+      setText('')
+    } catch (error) {
+      setFeedback(getFirebaseErrorMessage(error, 'Não foi possível enviar a mensagem.'))
+    }
+  }
+
   return (
     <section className="professor-page fade-in-panel">
-      <span className="eyebrow">Chat Aluno</span>
-      <h2>Chat com aluno</h2>
-      <p>Em desenvolvimento. Esta área ficará pronta para comunicação futura.</p>
+      <span className="eyebrow">Chat</span>
+      <h2>Conversas com alunos</h2>
+      <p>Selecione um aluno vinculado para abrir o bate-papo.</p>
+
+      {feedback ? <div className="info-banner error-banner panel-feedback">{feedback}</div> : null}
+
+      <div className="chat-shell">
+        <aside className="chat-sidebar">
+          {contacts.length === 0 ? (
+            <p>Nenhum aluno disponível no momento.</p>
+          ) : (
+            contacts.map((contact) => (
+              <button
+                key={contact.id}
+                type="button"
+                className={`chat-contact ${selectedContact?.id === contact.id ? 'chat-contact--active' : ''}`.trim()}
+                onClick={() => setSelectedContact(contact)}
+              >
+                <strong>{contact.nome}</strong>
+                <span>{contact.email}</span>
+              </button>
+            ))
+          )}
+        </aside>
+
+        <div className="chat-panel">
+          {selectedContact ? (
+            <>
+              <header className="chat-panel__header">
+                <MessageCircleMore size={18} />
+                <div>
+                  <strong>{selectedContact.nome}</strong>
+                  <span>{selectedContact.email}</span>
+                </div>
+              </header>
+
+              <div className="chat-messages">
+                {messages.length === 0 ? (
+                  <p className="muted-text">Nenhuma mensagem ainda. Comece a conversa.</p>
+                ) : (
+                  messages.map((message) => (
+                    <article
+                      key={message.id}
+                      className={`chat-bubble ${message.remetenteId === user?.uid ? 'chat-bubble--own' : ''}`.trim()}
+                    >
+                      <strong>{message.remetenteNome}</strong>
+                      <span>{message.texto}</span>
+                    </article>
+                  ))
+                )}
+              </div>
+
+              <div className="chat-compose">
+                <input
+                  className="search-panel__input"
+                  type="text"
+                  placeholder="Digite sua mensagem"
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                />
+                <button className="btn btn-primary request-card__button" type="button" onClick={handleSendMessage}>
+                  <Send size={16} />
+                  Enviar
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="muted-text">Selecione um contato para começar a conversar.</p>
+          )}
+        </div>
+      </div>
     </section>
   )
 }
