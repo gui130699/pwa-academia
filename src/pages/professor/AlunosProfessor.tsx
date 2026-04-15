@@ -1,5 +1,5 @@
 import { CheckCircle2, Clock3, Search, UserPlus, Users } from 'lucide-react'
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent, type MouseEvent } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import {
   getProfessorLinkRequests,
@@ -18,6 +18,7 @@ export function AlunosProfessor() {
   const [feedback, setFeedback] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [pendingStudentId, setPendingStudentId] = useState('')
+  const [selectedStudentId, setSelectedStudentId] = useState('')
 
   const acceptedRequests = useMemo(
     () => requests.filter((request) => request.status === 'aceito'),
@@ -34,6 +35,11 @@ export function AlunosProfessor() {
     [requests],
   )
 
+  const selectedStudent = useMemo(
+    () => results.find((student) => student.uid === selectedStudentId) ?? null,
+    [results, selectedStudentId],
+  )
+
   async function loadRequests() {
     if (!profile || profile.tipoConta !== 'professor') {
       return
@@ -47,8 +53,26 @@ export function AlunosProfessor() {
     }
   }
 
+  async function loadStudents(searchTerm = '') {
+    try {
+      const foundStudents = await searchStudents(searchTerm)
+      setResults(foundStudents)
+
+      if (foundStudents.length > 0 && !selectedStudentId) {
+        setSelectedStudentId(foundStudents[0].uid)
+      }
+
+      if (foundStudents.length === 0) {
+        setFeedback('Nenhum aluno encontrado com esse filtro.')
+      }
+    } catch (error) {
+      setFeedback(getFirebaseErrorMessage(error, 'Não foi possível buscar os alunos agora.'))
+    }
+  }
+
   useEffect(() => {
     void loadRequests()
+    void loadStudents('')
   }, [profile])
 
   async function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -57,20 +81,15 @@ export function AlunosProfessor() {
     setIsLoading(true)
 
     try {
-      const foundStudents = await searchStudents(search)
-      setResults(foundStudents)
-
-      if (foundStudents.length === 0) {
-        setFeedback('Nenhum aluno encontrado com esse filtro.')
-      }
-    } catch (error) {
-      setFeedback(getFirebaseErrorMessage(error, 'Não foi possível buscar os alunos agora.'))
+      await loadStudents(search)
     } finally {
       setIsLoading(false)
     }
   }
 
-  async function handleAddStudent(student: UsuarioAluno) {
+  async function handleAddStudent(student: UsuarioAluno, event?: MouseEvent<HTMLButtonElement>) {
+    event?.stopPropagation()
+
     if (!profile || profile.tipoConta !== 'professor') {
       setFeedback('Apenas professores podem enviar solicitações de vínculo.')
       return
@@ -138,8 +157,8 @@ export function AlunosProfessor() {
       {feedback ? <div className="info-banner success-banner panel-feedback">{feedback}</div> : null}
 
       <div className="section-block">
-        <h3 className="section-block__title">Resultados da pesquisa</h3>
-        <div className="request-grid">
+        <h3 className="section-block__title">Lista de alunos</h3>
+        <div className="compact-list">
           {results.length === 0 ? (
             <article className="request-card request-card--empty">
               <h3>Nenhum aluno listado ainda</h3>
@@ -152,19 +171,24 @@ export function AlunosProfessor() {
               const isPending = currentStatus === 'pendente'
 
               return (
-                <article key={student.uid} className="request-card">
-                  <div>
-                    <h3>{student.nomeCompleto}</h3>
-                    <p>{student.email}</p>
-                    <span className={`mini-badge ${currentStatus ? `mini-badge--${currentStatus}` : ''}`.trim()}>
-                      {isAccepted ? 'Vinculado' : isPending ? 'Pendente' : 'Aluno cadastrado'}
-                    </span>
+                <article
+                  key={student.uid}
+                  className={`compact-row ${selectedStudentId === student.uid ? 'compact-row--active' : ''}`.trim()}
+                  onClick={() => setSelectedStudentId(student.uid)}
+                >
+                  <div className="compact-row__main">
+                    <strong>{student.nomeCompleto}</strong>
+                    <span>{student.email}</span>
                   </div>
+
+                  <span className={`mini-badge ${currentStatus ? `mini-badge--${currentStatus}` : ''}`.trim()}>
+                    {isAccepted ? 'Vinculado' : isPending ? 'Pendente' : 'Disponível'}
+                  </span>
 
                   <button
                     className="btn btn-secondary request-card__button"
                     type="button"
-                    onClick={() => handleAddStudent(student)}
+                    onClick={(event) => handleAddStudent(student, event)}
                     disabled={pendingStudentId === student.uid || isAccepted || isPending}
                   >
                     <UserPlus size={16} />
@@ -173,8 +197,8 @@ export function AlunosProfessor() {
                       : isAccepted
                         ? 'Vinculado'
                         : isPending
-                          ? 'Solicitação pendente'
-                          : 'Adicionar aluno'}
+                          ? 'Pendente'
+                          : 'Adicionar'}
                   </button>
                 </article>
               )
@@ -184,8 +208,29 @@ export function AlunosProfessor() {
       </div>
 
       <div className="section-block">
+        <h3 className="section-block__title">Aluno selecionado</h3>
+        <article className="request-card request-card--compact">
+          {selectedStudent ? (
+            <>
+              <div>
+                <h3>{selectedStudent.nomeCompleto}</h3>
+                <p>{selectedStudent.email}</p>
+              </div>
+
+              <div className="request-card__status">
+                <CheckCircle2 size={16} />
+                Estrutura pronta para abrir treinos e evolução depois
+              </div>
+            </>
+          ) : (
+            <p>Selecione um aluno da lista para continuar.</p>
+          )}
+        </article>
+      </div>
+
+      <div className="section-block">
         <h3 className="section-block__title">Alunos que aceitaram</h3>
-        <div className="request-grid">
+        <div className="compact-list">
           {acceptedRequests.length === 0 ? (
             <article className="request-card request-card--empty">
               <h3>Ainda sem vínculos aceitos</h3>
@@ -193,12 +238,13 @@ export function AlunosProfessor() {
             </article>
           ) : (
             acceptedRequests.map((request) => (
-              <article key={request.id} className="request-card">
-                <div>
-                  <span className="mini-badge mini-badge--aceito">Vínculo aceito</span>
-                  <h3>{request.alunoNome}</h3>
-                  <p>{request.alunoEmail}</p>
+              <article key={request.id} className="compact-row compact-row--readonly">
+                <div className="compact-row__main">
+                  <strong>{request.alunoNome}</strong>
+                  <span>{request.alunoEmail}</span>
                 </div>
+
+                <span className="mini-badge mini-badge--aceito">Vínculo aceito</span>
 
                 <div className="request-card__status">
                   <CheckCircle2 size={16} />
