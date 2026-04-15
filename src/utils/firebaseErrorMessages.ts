@@ -6,6 +6,7 @@ const firebaseMessages: Record<string, string> = {
   'auth/user-not-found': 'Nenhuma conta foi encontrada com esse e-mail.',
   'auth/wrong-password': 'Senha incorreta.',
   'auth/invalid-credential': 'E-mail ou senha inválidos.',
+  'auth/operation-not-allowed': 'Ative o método E-mail/Senha no Firebase Authentication para liberar login e cadastro.',
   'auth/too-many-requests': 'Muitas tentativas. Tente novamente em instantes.',
   'auth/network-request-failed': 'Falha de conexão. Verifique sua internet.',
 }
