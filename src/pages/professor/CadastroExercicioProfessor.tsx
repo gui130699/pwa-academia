@@ -1,17 +1,23 @@
 import { ArrowLeft, Save } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import {
   createExercise,
   getMuscleGroups,
+  updateExercise,
 } from '../../services/exerciseService'
-import type { GrupoMuscular } from '../../types/exercise'
+import type { Exercicio, GrupoMuscular } from '../../types/exercise'
 import { getFirebaseErrorMessage } from '../../utils/firebaseErrorMessages'
 
 export function CadastroExercicioProfessor() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, profile } = useAuth()
+  const editingExercise = useMemo(
+    () => ((location.state as { exercise?: Exercicio } | null)?.exercise ?? null),
+    [location.state],
+  )
   const [groups, setGroups] = useState<GrupoMuscular[]>([])
   const [feedback, setFeedback] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -35,6 +41,19 @@ export function CadastroExercicioProfessor() {
     void loadGroups()
   }, [])
 
+  useEffect(() => {
+    if (!editingExercise) {
+      return
+    }
+
+    setFormData({
+      nome: editingExercise.nome ?? '',
+      descricao: editingExercise.descricao,
+      grupoMuscularId: editingExercise.grupoMuscularId,
+      videoInstrucaoUrl: editingExercise.videoInstrucaoUrl,
+    })
+  }, [editingExercise])
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback('')
@@ -47,7 +66,7 @@ export function CadastroExercicioProfessor() {
         throw new Error('Selecione um grupo muscular válido.')
       }
 
-      await createExercise({
+      const payload = {
         nome: formData.nome,
         descricao: formData.descricao,
         grupoMuscularId: selectedGroup.id,
@@ -55,10 +74,16 @@ export function CadastroExercicioProfessor() {
         videoInstrucaoUrl: formData.videoInstrucaoUrl,
         criadoPorId: user?.uid,
         criadoPorNome: profile?.nomeCompleto,
-      })
+      }
 
-      setFormData({ nome: '', descricao: '', grupoMuscularId: '', videoInstrucaoUrl: '' })
-      setFeedback('Exercício cadastrado com sucesso.')
+      if (editingExercise?.id) {
+        await updateExercise(editingExercise.id, payload)
+        setFeedback('Exercício atualizado com sucesso.')
+      } else {
+        await createExercise(payload)
+        setFormData({ nome: '', descricao: '', grupoMuscularId: '', videoInstrucaoUrl: '' })
+        setFeedback('Exercício cadastrado com sucesso.')
+      }
     } catch (error) {
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível salvar o exercício.'))
     } finally {
@@ -69,8 +94,12 @@ export function CadastroExercicioProfessor() {
   return (
     <section className="professor-page fade-in-panel">
       <span className="eyebrow">Cadastro de exercício</span>
-      <h2>Novo exercício</h2>
-      <p>Preencha o nome do exercício, a descrição, selecione o grupo muscular e cole o link do vídeo de instrução.</p>
+      <h2>{editingExercise ? 'Editar exercício' : 'Novo exercício'}</h2>
+      <p>
+        {editingExercise
+          ? 'Atualize as informações do exercício e salve as alterações.'
+          : 'Preencha o nome do exercício, a descrição, selecione o grupo muscular e cole o link do vídeo de instrução.'}
+      </p>
 
       {groups.length === 0 ? (
         <div className="info-banner warning-banner panel-feedback">
@@ -157,7 +186,7 @@ export function CadastroExercicioProfessor() {
             disabled={isSaving || groups.length === 0}
           >
             <Save size={16} />
-            {isSaving ? 'Salvando...' : 'Salvar exercício'}
+            {isSaving ? 'Salvando...' : editingExercise ? 'Salvar alterações' : 'Salvar exercício'}
           </button>
 
           <button

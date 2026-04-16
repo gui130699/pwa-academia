@@ -1,24 +1,37 @@
-import { ExternalLink, List, PlusSquare } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ExternalLink, List, Pencil, PlusSquare } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getExercises } from '../../services/exerciseService'
-import type { Exercicio } from '../../types/exercise'
+import { getExercises, getMuscleGroups } from '../../services/exerciseService'
+import type { Exercicio, GrupoMuscular } from '../../types/exercise'
 import { getFirebaseErrorMessage } from '../../utils/firebaseErrorMessages'
 
 export function TreinosProfessor() {
   const navigate = useNavigate()
   const [showExerciseList, setShowExerciseList] = useState(false)
   const [exercises, setExercises] = useState<Exercicio[]>([])
+  const [groups, setGroups] = useState<GrupoMuscular[]>([])
+  const [selectedGroupId, setSelectedGroupId] = useState('')
   const [feedback, setFeedback] = useState('')
 
   async function loadExercises() {
     try {
-      const result = await getExercises()
-      setExercises(result)
+      const [exerciseResult, groupResult] = await Promise.all([getExercises(), getMuscleGroups()])
+      setExercises(exerciseResult)
+      setGroups(groupResult)
     } catch (error) {
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível carregar os exercícios.'))
     }
   }
+
+  const filteredExercises = useMemo(() => {
+    if (!selectedGroupId) {
+      return []
+    }
+
+    return exercises.filter((exercise) => exercise.grupoMuscularId === selectedGroupId)
+  }, [exercises, selectedGroupId])
+
+  const selectedGroupName = groups.find((group) => group.id === selectedGroupId)?.nome ?? ''
 
   useEffect(() => {
     void loadExercises()
@@ -62,16 +75,42 @@ export function TreinosProfessor() {
 
       {showExerciseList ? (
         <div className="section-block">
-          <h3 className="section-block__title">Lista de exercícios</h3>
+          <h3 className="section-block__title">Lista de exercícios por grupo muscular</h3>
+
+          <label className="form-field">
+            <span>Selecione o grupo muscular</span>
+            <select
+              className="app-input"
+              value={selectedGroupId}
+              onChange={(event) => setSelectedGroupId(event.target.value)}
+            >
+              <option value="">Escolha um grupo muscular</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.nome}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div className="compact-list">
-            {exercises.length === 0 ? (
+            {groups.length === 0 ? (
               <article className="request-card request-card--empty">
-                <h3>Nenhum exercício cadastrado ainda</h3>
-                <p>Use o botão de cadastro para começar a montar sua biblioteca de exercícios.</p>
+                <h3>Nenhum grupo muscular cadastrado</h3>
+                <p>Cadastre um grupo muscular antes de organizar os exercícios.</p>
+              </article>
+            ) : !selectedGroupId ? (
+              <article className="request-card request-card--empty">
+                <h3>Selecione um grupo muscular</h3>
+                <p>Ao selecionar um grupo, a lista dos exercícios referentes será exibida aqui.</p>
+              </article>
+            ) : filteredExercises.length === 0 ? (
+              <article className="request-card request-card--empty">
+                <h3>Nenhum exercício em {selectedGroupName}</h3>
+                <p>Use o botão de cadastro para adicionar exercícios neste grupo muscular.</p>
               </article>
             ) : (
-              exercises.map((exercise) => (
+              filteredExercises.map((exercise) => (
                 <article key={exercise.id} className="compact-row compact-row--readonly">
                   <div className="compact-row__main">
                     <strong>{exercise.nome ?? 'Exercício cadastrado'}</strong>
@@ -79,15 +118,25 @@ export function TreinosProfessor() {
                     <span>Grupo muscular: {exercise.grupoMuscularNome}</span>
                     <span>{exercise.criadoPorNome ? `Cadastrado por ${exercise.criadoPorNome}` : 'Cadastro disponível para uso.'}</span>
                   </div>
-                  <a
-                    className="btn btn-ghost request-card__button"
-                    href={exercise.videoInstrucaoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <ExternalLink size={16} />
-                    Ver vídeo
-                  </a>
+                  <div className="request-card__actions">
+                    <button
+                      className="btn btn-secondary request-card__button"
+                      type="button"
+                      onClick={() => navigate('/professor/cadastro-exercicio', { state: { exercise } })}
+                    >
+                      <Pencil size={16} />
+                      Editar
+                    </button>
+                    <a
+                      className="btn btn-ghost request-card__button"
+                      href={exercise.videoInstrucaoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={16} />
+                      Ver vídeo
+                    </a>
+                  </div>
                 </article>
               ))
             )}

@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore'
+import { addDoc, collection, doc, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { Exercicio, GrupoMuscular, NovoExercicioPayload } from '../types/exercise'
 
@@ -38,13 +38,19 @@ export async function getExercises(): Promise<Exercicio[]> {
       ...(currentDoc.data() as Omit<Exercicio, 'id'>),
     }))
     .sort((first, second) => {
+      const groupCompare = first.grupoMuscularNome.localeCompare(second.grupoMuscularNome, 'pt-BR')
+
+      if (groupCompare !== 0) {
+        return groupCompare
+      }
+
       const firstLabel = first.nome ?? first.descricao
       const secondLabel = second.nome ?? second.descricao
       return firstLabel.localeCompare(secondLabel, 'pt-BR')
     })
 }
 
-export async function createExercise(payload: NovoExercicioPayload) {
+function validateExercisePayload(payload: NovoExercicioPayload) {
   const name = payload.nome.trim()
   const description = payload.descricao.trim()
   const videoUrl = payload.videoInstrucaoUrl.trim()
@@ -71,14 +77,39 @@ export async function createExercise(payload: NovoExercicioPayload) {
     throw new Error('Informe um link de vídeo válido.')
   }
 
-  await addDoc(exercisesCollection, {
+  return {
     nome: name,
     descricao: description,
+    videoInstrucaoUrl: videoUrl,
+  }
+}
+
+export async function createExercise(payload: NovoExercicioPayload) {
+  const validated = validateExercisePayload(payload)
+
+  await addDoc(exercisesCollection, {
+    nome: validated.nome,
+    descricao: validated.descricao,
     grupoMuscularId: payload.grupoMuscularId,
     grupoMuscularNome: payload.grupoMuscularNome,
-    videoInstrucaoUrl: videoUrl,
+    videoInstrucaoUrl: validated.videoInstrucaoUrl,
     criadoPorId: payload.criadoPorId ?? '',
     criadoPorNome: payload.criadoPorNome ?? '',
     criadoEm: serverTimestamp(),
+  })
+}
+
+export async function updateExercise(exerciseId: string, payload: NovoExercicioPayload) {
+  const validated = validateExercisePayload(payload)
+
+  await updateDoc(doc(db, 'exercicios', exerciseId), {
+    nome: validated.nome,
+    descricao: validated.descricao,
+    grupoMuscularId: payload.grupoMuscularId,
+    grupoMuscularNome: payload.grupoMuscularNome,
+    videoInstrucaoUrl: validated.videoInstrucaoUrl,
+    criadoPorId: payload.criadoPorId ?? '',
+    criadoPorNome: payload.criadoPorNome ?? '',
+    atualizadoEm: serverTimestamp(),
   })
 }

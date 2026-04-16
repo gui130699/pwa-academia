@@ -40,8 +40,8 @@ service cloud.firestore {
     }
 
     match /exercicios/{exerciseId} {
-      allow read, create: if request.auth != null;
-      allow update, delete: if false;
+      allow read, create, update: if request.auth != null;
+      allow delete: if false;
     }
 
     match /conversas/{conversationId} {
