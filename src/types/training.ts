@@ -4,6 +4,7 @@ export interface TreinoItem {
   exerciseNames: string[]
   repeticoes: string
   repeticaoPersonalizada?: string
+  repeticaoPersonalizadaValores?: string[]
   observacoes?: string
   carga?: string
   grupoMuscularId?: string

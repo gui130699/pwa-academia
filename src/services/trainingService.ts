@@ -15,7 +15,13 @@ function normalizeTrainingItems(items: TreinoItem[]) {
       new Set(item.exerciseNames.map((name) => name.trim()).filter(Boolean)),
     )
     const repeticoes = item.repeticoes.trim()
-    const repeticaoPersonalizada = item.repeticaoPersonalizada?.trim() ?? ''
+    const repeticaoPersonalizadaValores = (item.repeticaoPersonalizadaValores ?? [])
+      .map((value) => value.trim())
+      .filter(Boolean)
+    const repeticaoPersonalizada =
+      repeticaoPersonalizadaValores.length > 0
+        ? repeticaoPersonalizadaValores.join('-')
+        : item.repeticaoPersonalizada?.trim() ?? ''
     const observacoes = item.observacoes?.trim() ?? ''
     const carga = item.carga?.trim() ?? ''
 
@@ -33,6 +39,7 @@ function normalizeTrainingItems(items: TreinoItem[]) {
       exerciseNames,
       repeticoes,
       repeticaoPersonalizada,
+      repeticaoPersonalizadaValores,
       observacoes,
       carga,
       grupoMuscularId: item.grupoMuscularId ?? '',

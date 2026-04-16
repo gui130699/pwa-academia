@@ -23,7 +23,9 @@ interface LocalTreinoItem {
   extraExerciseIds: string[]
   mergeEnabled: boolean
   repetitions: string
-  customRepetitions: string
+  customRepetitionEnabled: boolean
+  customRepetitionCount: string
+  customRepetitionValues: string[]
   observations: string
   load: string
 }
@@ -36,7 +38,9 @@ function createEmptyItem(): LocalTreinoItem {
     extraExerciseIds: [],
     mergeEnabled: false,
     repetitions: '',
-    customRepetitions: '',
+    customRepetitionEnabled: false,
+    customRepetitionCount: '4',
+    customRepetitionValues: ['', '', '', ''],
     observations: '',
     load: '',
   }
@@ -116,6 +120,42 @@ export function MontarTreinoProfessor() {
     )
   }
 
+  function updateCustomRepetitionCount(localId: string, countValue: string) {
+    const parsedCount = Math.max(1, Number.parseInt(countValue || '1', 10) || 1)
+
+    setItems((current) =>
+      current.map((item) => {
+        if (item.localId !== localId) {
+          return item
+        }
+
+        return {
+          ...item,
+          customRepetitionCount: String(parsedCount),
+          customRepetitionValues: Array.from({ length: parsedCount }, (_, index) => item.customRepetitionValues[index] ?? ''),
+        }
+      }),
+    )
+  }
+
+  function updateCustomRepetitionValue(localId: string, valueIndex: number, value: string) {
+    setItems((current) =>
+      current.map((item) => {
+        if (item.localId !== localId) {
+          return item
+        }
+
+        const nextValues = [...item.customRepetitionValues]
+        nextValues[valueIndex] = value
+
+        return {
+          ...item,
+          customRepetitionValues: nextValues,
+        }
+      }),
+    )
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback('')
@@ -144,8 +184,13 @@ export function MontarTreinoProfessor() {
           id: item.localId,
           exerciseIds: selectedExercises.map((exercise) => exercise.id),
           exerciseNames: selectedExercises.map((exercise) => exercise.nome ?? exercise.descricao),
-          repeticoes: item.repetitions,
-          repeticaoPersonalizada: item.customRepetitions,
+          repeticoes: item.customRepetitionEnabled ? '' : item.repetitions,
+          repeticaoPersonalizada: item.customRepetitionEnabled
+            ? item.customRepetitionValues.map((value) => value.trim()).filter(Boolean).join('-')
+            : '',
+          repeticaoPersonalizadaValores: item.customRepetitionEnabled
+            ? item.customRepetitionValues.map((value) => value.trim()).filter(Boolean)
+            : [],
           observacoes: item.observations,
           carga: item.load,
           grupoMuscularId: item.groupId,
@@ -320,27 +365,78 @@ export function MontarTreinoProfessor() {
 
                   <div className="auth-grid" style={{ marginTop: 12 }}>
                     <label className="form-field">
-                      <span>Quantidade de repetição</span>
+                      <span>Número de repetições</span>
                       <input
                         className="app-input"
-                        type="text"
-                        placeholder="Ex.: 3x12"
+                        type="number"
+                        min="1"
+                        placeholder="Ex.: 12"
                         value={item.repetitions}
+                        disabled={item.customRepetitionEnabled}
                         onChange={(event) => updateItem(item.localId, { repetitions: event.target.value })}
                       />
                     </label>
 
                     <label className="form-field">
-                      <span>Repetição personalizada</span>
-                      <input
-                        className="app-input"
-                        type="text"
-                        placeholder="Ex.: até a falha, 30 segundos"
-                        value={item.customRepetitions}
-                        onChange={(event) => updateItem(item.localId, { customRepetitions: event.target.value })}
-                      />
+                      <span>
+                        <input
+                          type="checkbox"
+                          checked={item.customRepetitionEnabled}
+                          onChange={(event) =>
+                            updateItem(item.localId, {
+                              customRepetitionEnabled: event.target.checked,
+                              repetitions: event.target.checked ? '' : item.repetitions,
+                              customRepetitionCount: event.target.checked ? item.customRepetitionCount || '4' : '4',
+                              customRepetitionValues: event.target.checked
+                                ? (item.customRepetitionValues.length > 0 ? item.customRepetitionValues : ['', '', '', ''])
+                                : ['', '', '', ''],
+                            })
+                          }
+                        />{' '}
+                        Usar repetição personalizada
+                      </span>
                     </label>
                   </div>
+
+                  {item.customRepetitionEnabled ? (
+                    <div className="section-block" style={{ marginTop: 12 }}>
+                      <div className="auth-grid">
+                        <label className="form-field">
+                          <span>Quantidade de campos personalizados</span>
+                          <input
+                            className="app-input"
+                            type="number"
+                            min="1"
+                            max="12"
+                            value={item.customRepetitionCount}
+                            onChange={(event) => updateCustomRepetitionCount(item.localId, event.target.value)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="auth-grid" style={{ marginTop: 12 }}>
+                        {item.customRepetitionValues.map((value, valueIndex) => (
+                          <label key={`${item.localId}_${valueIndex}`} className="form-field">
+                            <span>Campo {valueIndex + 1}</span>
+                            <input
+                              className="app-input"
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              value={value}
+                              onChange={(event) =>
+                                updateCustomRepetitionValue(item.localId, valueIndex, event.target.value)
+                              }
+                            />
+                          </label>
+                        ))}
+                      </div>
+
+                      <p>
+                        Sequência personalizada: {item.customRepetitionValues.map((value) => value || '0').join('-')}
+                      </p>
+                    </div>
+                  ) : null}
 
                   <div className="auth-grid" style={{ marginTop: 12 }}>
                     <label className="form-field">
