@@ -5,6 +5,7 @@ import {
   FolderTree,
   LayoutDashboard,
   MessageCircle,
+  PlusSquare,
   Settings,
   Users,
 } from 'lucide-react'
@@ -14,6 +15,7 @@ const menuItems = [
   { to: '/professor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/professor/alunos', label: 'Alunos', icon: Users },
   { to: '/professor/treinos', label: 'Treinos', icon: ClipboardList },
+  { to: '/professor/montar-treino', label: 'Montar treino', icon: PlusSquare },
   { to: '/professor/cadastros-auxiliares', label: 'Cadastros', icon: FolderTree },
   { to: '/professor/notificacoes', label: 'Notificações', icon: Bell },
   { to: '/professor/agenda', label: 'Agenda', icon: CalendarDays },

@@ -58,6 +58,14 @@ export function TreinosProfessor() {
         <button
           className="btn btn-secondary request-card__button"
           type="button"
+          onClick={() => navigate('/professor/montar-treino')}
+        >
+          Montar treino
+        </button>
+
+        <button
+          className="btn btn-secondary request-card__button"
+          type="button"
           onClick={() => navigate('/professor/cadastros-auxiliares')}
         >
           Cadastros auxiliares
