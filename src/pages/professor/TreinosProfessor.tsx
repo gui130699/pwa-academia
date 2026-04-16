@@ -74,7 +74,8 @@ export function TreinosProfessor() {
               exercises.map((exercise) => (
                 <article key={exercise.id} className="compact-row compact-row--readonly">
                   <div className="compact-row__main">
-                    <strong>{exercise.descricao}</strong>
+                    <strong>{exercise.nome ?? 'Exercício cadastrado'}</strong>
+                    <span>{exercise.descricao}</span>
                     <span>Grupo muscular: {exercise.grupoMuscularNome}</span>
                     <span>{exercise.criadoPorNome ? `Cadastrado por ${exercise.criadoPorNome}` : 'Cadastro disponível para uso.'}</span>
                   </div>

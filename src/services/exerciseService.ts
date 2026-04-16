@@ -37,12 +37,21 @@ export async function getExercises(): Promise<Exercicio[]> {
       id: currentDoc.id,
       ...(currentDoc.data() as Omit<Exercicio, 'id'>),
     }))
-    .sort((first, second) => first.descricao.localeCompare(second.descricao, 'pt-BR'))
+    .sort((first, second) => {
+      const firstLabel = first.nome ?? first.descricao
+      const secondLabel = second.nome ?? second.descricao
+      return firstLabel.localeCompare(secondLabel, 'pt-BR')
+    })
 }
 
 export async function createExercise(payload: NovoExercicioPayload) {
+  const name = payload.nome.trim()
   const description = payload.descricao.trim()
   const videoUrl = payload.videoInstrucaoUrl.trim()
+
+  if (!name) {
+    throw new Error('Informe o nome do exercício.')
+  }
 
   if (!description) {
     throw new Error('Informe a descrição do exercício.')
@@ -63,6 +72,7 @@ export async function createExercise(payload: NovoExercicioPayload) {
   }
 
   await addDoc(exercisesCollection, {
+    nome: name,
     descricao: description,
     grupoMuscularId: payload.grupoMuscularId,
     grupoMuscularNome: payload.grupoMuscularNome,

@@ -6,6 +6,7 @@ export interface GrupoMuscular {
 
 export interface Exercicio {
   id: string
+  nome?: string
   descricao: string
   grupoMuscularId: string
   grupoMuscularNome: string
@@ -16,6 +17,7 @@ export interface Exercicio {
 }
 
 export interface NovoExercicioPayload {
+  nome: string
   descricao: string
   grupoMuscularId: string
   grupoMuscularNome: string

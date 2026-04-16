@@ -16,6 +16,7 @@ export function CadastroExercicioProfessor() {
   const [feedback, setFeedback] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState({
+    nome: '',
     descricao: '',
     grupoMuscularId: '',
     videoInstrucaoUrl: '',
@@ -47,6 +48,7 @@ export function CadastroExercicioProfessor() {
       }
 
       await createExercise({
+        nome: formData.nome,
         descricao: formData.descricao,
         grupoMuscularId: selectedGroup.id,
         grupoMuscularNome: selectedGroup.nome,
@@ -55,7 +57,7 @@ export function CadastroExercicioProfessor() {
         criadoPorNome: profile?.nomeCompleto,
       })
 
-      setFormData({ descricao: '', grupoMuscularId: '', videoInstrucaoUrl: '' })
+      setFormData({ nome: '', descricao: '', grupoMuscularId: '', videoInstrucaoUrl: '' })
       setFeedback('Exercício cadastrado com sucesso.')
     } catch (error) {
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível salvar o exercício.'))
@@ -68,7 +70,7 @@ export function CadastroExercicioProfessor() {
     <section className="professor-page fade-in-panel">
       <span className="eyebrow">Cadastro de exercício</span>
       <h2>Novo exercício</h2>
-      <p>Preencha a descrição, selecione o grupo muscular e cole o link do vídeo de instrução.</p>
+      <p>Preencha o nome do exercício, a descrição, selecione o grupo muscular e cole o link do vídeo de instrução.</p>
 
       {groups.length === 0 ? (
         <div className="info-banner warning-banner panel-feedback">
@@ -79,6 +81,22 @@ export function CadastroExercicioProfessor() {
       {feedback ? <div className="info-banner success-banner panel-feedback">{feedback}</div> : null}
 
       <form className="auth-form section-block" onSubmit={handleSubmit}>
+        <label className="form-field">
+          <span>Nome do exercício</span>
+          <input
+            className="app-input"
+            type="text"
+            placeholder="Ex.: Supino reto com barra"
+            value={formData.nome}
+            onChange={(event) =>
+              setFormData((current) => ({
+                ...current,
+                nome: event.target.value,
+              }))
+            }
+          />
+        </label>
+
         <label className="form-field">
           <span>Descrição do exercício</span>
           <textarea
