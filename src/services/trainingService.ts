@@ -14,6 +14,7 @@ function normalizeTrainingItems(items: TreinoItem[]) {
     const exerciseNames = Array.from(
       new Set(item.exerciseNames.map((name) => name.trim()).filter(Boolean)),
     )
+    const series = item.series?.trim() ?? ''
     const repeticoes = item.repeticoes.trim()
     const repeticaoPersonalizadaValores = (item.repeticaoPersonalizadaValores ?? [])
       .map((value) => value.trim())
@@ -29,6 +30,10 @@ function normalizeTrainingItems(items: TreinoItem[]) {
       throw new Error(`Selecione ao menos um exercício no bloco ${index + 1}.`)
     }
 
+    if (!series) {
+      throw new Error(`Informe o número de séries no bloco ${index + 1}.`)
+    }
+
     if (!repeticoes && !repeticaoPersonalizada) {
       throw new Error(`Informe a repetição ou a repetição personalizada no bloco ${index + 1}.`)
     }
@@ -37,6 +42,7 @@ function normalizeTrainingItems(items: TreinoItem[]) {
       id: item.id,
       exerciseIds,
       exerciseNames,
+      series,
       repeticoes,
       repeticaoPersonalizada,
       repeticaoPersonalizadaValores,

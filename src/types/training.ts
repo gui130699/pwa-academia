@@ -2,6 +2,7 @@ export interface TreinoItem {
   id: string
   exerciseIds: string[]
   exerciseNames: string[]
+  series?: string
   repeticoes: string
   repeticaoPersonalizada?: string
   repeticaoPersonalizadaValores?: string[]

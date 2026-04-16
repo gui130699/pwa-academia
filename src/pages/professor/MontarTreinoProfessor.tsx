@@ -22,6 +22,7 @@ interface LocalTreinoItem {
   mainExerciseId: string
   extraExerciseIds: string[]
   mergeEnabled: boolean
+  series: string
   repetitions: string
   customRepetitionEnabled: boolean
   customRepetitionCount: string
@@ -37,6 +38,7 @@ function createEmptyItem(): LocalTreinoItem {
     mainExerciseId: '',
     extraExerciseIds: [],
     mergeEnabled: false,
+    series: '',
     repetitions: '',
     customRepetitionEnabled: false,
     customRepetitionCount: '4',
@@ -184,6 +186,7 @@ export function MontarTreinoProfessor() {
           id: item.localId,
           exerciseIds: selectedExercises.map((exercise) => exercise.id),
           exerciseNames: selectedExercises.map((exercise) => exercise.nome ?? exercise.descricao),
+          series: item.series,
           repeticoes: item.customRepetitionEnabled ? '' : item.repetitions,
           repeticaoPersonalizada: item.customRepetitionEnabled
             ? item.customRepetitionValues.map((value) => value.trim()).filter(Boolean).join('-')
@@ -365,6 +368,18 @@ export function MontarTreinoProfessor() {
 
                   <div className="auth-grid" style={{ marginTop: 12 }}>
                     <label className="form-field">
+                      <span>Número de séries</span>
+                      <input
+                        className="app-input"
+                        type="number"
+                        min="1"
+                        placeholder="Ex.: 4"
+                        value={item.series}
+                        onChange={(event) => updateItem(item.localId, { series: event.target.value })}
+                      />
+                    </label>
+
+                    <label className="form-field">
                       <span>Número de repetições</span>
                       <input
                         className="app-input"
@@ -376,27 +391,27 @@ export function MontarTreinoProfessor() {
                         onChange={(event) => updateItem(item.localId, { repetitions: event.target.value })}
                       />
                     </label>
-
-                    <label className="form-field">
-                      <span>
-                        <input
-                          type="checkbox"
-                          checked={item.customRepetitionEnabled}
-                          onChange={(event) =>
-                            updateItem(item.localId, {
-                              customRepetitionEnabled: event.target.checked,
-                              repetitions: event.target.checked ? '' : item.repetitions,
-                              customRepetitionCount: event.target.checked ? item.customRepetitionCount || '4' : '4',
-                              customRepetitionValues: event.target.checked
-                                ? (item.customRepetitionValues.length > 0 ? item.customRepetitionValues : ['', '', '', ''])
-                                : ['', '', '', ''],
-                            })
-                          }
-                        />{' '}
-                        Usar repetição personalizada
-                      </span>
-                    </label>
                   </div>
+
+                  <label className="form-field" style={{ marginTop: 12 }}>
+                    <span>
+                      <input
+                        type="checkbox"
+                        checked={item.customRepetitionEnabled}
+                        onChange={(event) =>
+                          updateItem(item.localId, {
+                            customRepetitionEnabled: event.target.checked,
+                            repetitions: event.target.checked ? '' : item.repetitions,
+                            customRepetitionCount: event.target.checked ? item.customRepetitionCount || '4' : '4',
+                            customRepetitionValues: event.target.checked
+                              ? (item.customRepetitionValues.length > 0 ? item.customRepetitionValues : ['', '', '', ''])
+                              : ['', '', '', ''],
+                          })
+                        }
+                      />{' '}
+                      Usar repetição personalizada
+                    </span>
+                  </label>
 
                   {item.customRepetitionEnabled ? (
                     <div className="section-block" style={{ marginTop: 12 }}>
