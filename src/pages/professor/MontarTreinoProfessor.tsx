@@ -154,24 +154,6 @@ export function MontarTreinoProfessor() {
     )
   }
 
-  function updateCustomRepetitionCount(localId: string, countValue: string) {
-    const parsedCount = Math.max(1, Number.parseInt(countValue || '1', 10) || 1)
-
-    setItems((current) =>
-      current.map((item) => {
-        if (item.localId !== localId) {
-          return item
-        }
-
-        return {
-          ...item,
-          customRepetitionCount: String(parsedCount),
-          customRepetitionValues: Array.from({ length: parsedCount }, (_, index) => item.customRepetitionValues[index] ?? ''),
-        }
-      }),
-    )
-  }
-
   function updateCustomRepetitionValue(localId: string, valueIndex: number, value: string) {
     setItems((current) =>
       current.map((item) => {
@@ -419,7 +401,17 @@ export function MontarTreinoProfessor() {
                         min="1"
                         placeholder="Ex.: 4"
                         value={item.series}
-                        onChange={(event) => updateItem(item.localId, { series: event.target.value })}
+                        onChange={(event) => {
+                          const val = event.target.value
+                          const count = Math.max(1, Number.parseInt(val || '1', 10) || 1)
+                          updateItem(item.localId, {
+                            series: val,
+                            ...(item.customRepetitionEnabled && {
+                              customRepetitionCount: String(count),
+                              customRepetitionValues: Array.from({ length: count }, (_, i) => item.customRepetitionValues[i] ?? ''),
+                            }),
+                          })
+                        }}
                       />
                     </label>
 
@@ -446,10 +438,16 @@ export function MontarTreinoProfessor() {
                           updateItem(item.localId, {
                             customRepetitionEnabled: event.target.checked,
                             repetitions: event.target.checked ? '' : item.repetitions,
-                            customRepetitionCount: event.target.checked ? item.customRepetitionCount || '4' : '4',
-                            customRepetitionValues: event.target.checked
-                              ? (item.customRepetitionValues.length > 0 ? item.customRepetitionValues : ['', '', '', ''])
-                              : ['', '', '', ''],
+                            ...(event.target.checked ? (() => {
+                              const count = Math.max(1, Number.parseInt(item.series || '4', 10) || 4)
+                              return {
+                                customRepetitionCount: String(count),
+                                customRepetitionValues: Array.from({ length: count }, (_, i) => item.customRepetitionValues[i] ?? ''),
+                              }
+                            })() : {
+                              customRepetitionCount: '4',
+                              customRepetitionValues: ['', '', '', ''],
+                            }),
                           })
                         }
                       />{' '}
@@ -459,21 +457,7 @@ export function MontarTreinoProfessor() {
 
                   {item.customRepetitionEnabled ? (
                     <div className="section-block" style={{ marginTop: 12 }}>
-                      <div className="auth-grid">
-                        <label className="form-field">
-                          <span>Quantidade de campos personalizados</span>
-                          <input
-                            className="app-input"
-                            type="number"
-                            min="1"
-                            max="12"
-                            value={item.customRepetitionCount}
-                            onChange={(event) => updateCustomRepetitionCount(item.localId, event.target.value)}
-                          />
-                        </label>
-                      </div>
-
-                      <div className="auth-grid" style={{ marginTop: 12 }}>
+                      <div className="auth-grid" style={{ marginTop: 0 }}>
                         {item.customRepetitionValues.map((value, valueIndex) => (
                           <label key={`${item.localId}_${valueIndex}`} className="form-field">
                             <span>Campo {valueIndex + 1}</span>
