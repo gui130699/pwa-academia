@@ -10,6 +10,7 @@ import { DashboardProfessor } from '../pages/professor/DashboardProfessor'
 import { MontarTreinoProfessor } from '../pages/professor/MontarTreinoProfessor'
 import { NotificacoesProfessor } from '../pages/professor/NotificacoesProfessor'
 import { TreinosProfessor } from '../pages/professor/TreinosProfessor'
+import { VisualizarTreino } from '../pages/VisualizarTreino'
 
 export const professorRoutes = (
   <Route path="/professor" element={<LayoutProfessor />}>
@@ -18,6 +19,7 @@ export const professorRoutes = (
     <Route path="alunos" element={<AlunosProfessor />} />
     <Route path="treinos" element={<TreinosProfessor />} />
     <Route path="montar-treino" element={<MontarTreinoProfessor />} />
+    <Route path="treino/:id" element={<VisualizarTreino />} />
     <Route path="cadastro-exercicio" element={<CadastroExercicioProfessor />} />
     <Route path="cadastros-auxiliares" element={<CadastrosAuxiliaresProfessor />} />
     <Route path="notificacoes" element={<NotificacoesProfessor />} />

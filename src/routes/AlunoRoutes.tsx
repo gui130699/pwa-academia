@@ -10,6 +10,7 @@ import { EvolucaoAluno } from '../pages/aluno/EvolucaoAluno'
 import { MetasAluno } from '../pages/aluno/MetasAluno'
 import { NotificacoesAluno } from '../pages/aluno/NotificacoesAluno'
 import { TreinosAluno } from '../pages/aluno/TreinosAluno'
+import { VisualizarTreino } from '../pages/VisualizarTreino'
 
 function DashboardRedirect() {
   const { profile } = useAuth()
@@ -30,6 +31,7 @@ export const alunoRoutes = (
       <Route index element={<Navigate to="dashboard" replace />} />
       <Route path="dashboard" element={<DashboardAluno />} />
       <Route path="treinos" element={<TreinosAluno />} />
+      <Route path="treino/:id" element={<VisualizarTreino />} />
       <Route path="evolucao" element={<EvolucaoAluno />} />
       <Route path="agenda" element={<AgendaAluno />} />
       <Route path="metas" element={<MetasAluno />} />

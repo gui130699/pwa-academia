@@ -518,13 +518,20 @@ export function MontarTreinoProfessor() {
             </article>
           ) : (
             plansForStudent.map((plan) => (
-              <article key={plan.id} className="compact-row compact-row--readonly">
+              <article
+                key={plan.id}
+                className="compact-row compact-row--clickable"
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/professor/treino/${plan.id}`)}
+                onKeyDown={(event) => { if (event.key === 'Enter') navigate(`/professor/treino/${plan.id}`) }}
+              >
                 <div className="compact-row__main">
                   <strong>{plan.nome}</strong>
                   <span>{plan.alunoNome}</span>
                   <span>{plan.itens.map((item) => item.exerciseNames.join(' + ')).join(' • ')}</span>
                 </div>
-                <span className="mini-badge mini-badge--aceito">Salvo</span>
+                <span className="mini-badge mini-badge--aceito">Ver ficha</span>
               </article>
             ))
           )}

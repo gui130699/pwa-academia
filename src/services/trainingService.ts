@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { NovoTreinoPayload, TreinoItem, TreinoMontado } from '../types/training'
 
@@ -85,4 +85,28 @@ export async function getProfessorTrainingPlans(professorId: string): Promise<Tr
       ...(currentDoc.data() as Omit<TreinoMontado, 'id'>),
     }))
     .sort((first, second) => second.nome.localeCompare(first.nome, 'pt-BR'))
+}
+
+export async function getAlunoTrainingPlans(alunoId: string): Promise<TreinoMontado[]> {
+  const snapshot = await getDocs(query(trainingCollection, where('alunoId', '==', alunoId)))
+
+  return snapshot.docs
+    .map((currentDoc) => ({
+      id: currentDoc.id,
+      ...(currentDoc.data() as Omit<TreinoMontado, 'id'>),
+    }))
+    .sort((first, second) => first.nome.localeCompare(second.nome, 'pt-BR'))
+}
+
+export async function getTrainingPlanById(trainingId: string): Promise<TreinoMontado | null> {
+  const snapshot = await getDoc(doc(db, 'treinos', trainingId))
+
+  if (!snapshot.exists()) {
+    return null
+  }
+
+  return {
+    id: snapshot.id,
+    ...(snapshot.data() as Omit<TreinoMontado, 'id'>),
+  }
 }

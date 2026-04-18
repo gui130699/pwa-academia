@@ -1265,3 +1265,142 @@ h6 {
     padding: 9px 12px;
   }
 }
+
+/* ── Ficha de treino estilo academia ────────────────────────── */
+
+.treino-meta {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  margin: 4px 0 0;
+}
+
+.treino-cards {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.treino-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(2, 6, 23, 0.44);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.treino-card:hover {
+  border-color: rgba(134, 239, 172, 0.25);
+  box-shadow: 0 8px 32px rgba(2, 6, 23, 0.28);
+}
+
+.treino-card__number {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #052e16;
+  background: linear-gradient(135deg, #86efac, #22c55e);
+}
+
+.treino-card__body {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.treino-card__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.treino-card__name {
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.treino-card__merge-sep {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #86efac;
+  padding: 0 4px;
+}
+
+.treino-card__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.treino-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.treino-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #d1fae5;
+  background: rgba(21, 128, 61, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.treino-stat--reps {
+  color: #bfdbfe;
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(96, 165, 250, 0.22);
+}
+
+.treino-card__obs {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.06);
+  border-left: 3px solid rgba(148, 163, 184, 0.22);
+}
+
+.compact-row--clickable {
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.compact-row--clickable:hover {
+  border-color: rgba(134, 239, 172, 0.32);
+  background: rgba(21, 128, 61, 0.1);
+}
+
+@media (max-width: 720px) {
+  .treino-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .treino-card__number {
+    width: 36px;
+    height: 36px;
+  }
+}
