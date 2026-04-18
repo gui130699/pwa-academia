@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { useUnreadCount } from '../../hooks/useUnreadCount'
 
 const menuItems = [
   { to: '/professor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const menuItems = [
 
 export function SidebarProfessor() {
   const { signOutUser } = useAuth()
+  const unreadCount = useUnreadCount()
 
   return (
     <aside className="professor-sidebar">
@@ -54,6 +56,9 @@ export function SidebarProfessor() {
             >
               <Icon size={18} />
               <span>{item.label}</span>
+              {item.to === '/professor/chat' && unreadCount > 0 ? (
+                <span className="nav-badge">{unreadCount}</span>
+              ) : null}
             </NavLink>
           )
         })}

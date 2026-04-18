@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { useUnreadCount } from '../../hooks/useUnreadCount'
 
 const menuItems = [
   { to: '/aluno/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const menuItems = [
 
 export function SidebarAluno() {
   const { signOutUser } = useAuth()
+  const unreadCount = useUnreadCount()
 
   return (
     <aside className="aluno-sidebar">
@@ -54,6 +56,9 @@ export function SidebarAluno() {
             >
               <Icon size={18} />
               <span>{item.label}</span>
+              {item.to === '/aluno/chat' && unreadCount > 0 ? (
+                <span className="nav-badge">{unreadCount}</span>
+              ) : null}
             </NavLink>
           )
         })}

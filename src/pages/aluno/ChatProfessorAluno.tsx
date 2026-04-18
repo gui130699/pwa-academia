@@ -1,7 +1,8 @@
 import { MessageCircleMore, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { getAlunoChatContacts, sendChatMessage, subscribeToMessages } from '../../services/chatService'
+import { getAlunoChatContacts, getConversationId, sendChatMessage, subscribeToMessages } from '../../services/chatService'
+import { markConversationSeen } from '../../hooks/useUnreadCount'
 import type { ChatContact, ChatMessage } from '../../types/chat'
 import { getFirebaseErrorMessage } from '../../utils/firebaseErrorMessages'
 
@@ -42,6 +43,7 @@ export function ChatProfessorAluno() {
       return
     }
 
+    markConversationSeen(getConversationId(user.uid, selectedContact.id))
     const unsubscribe = subscribeToMessages(user.uid, selectedContact, setMessages)
     return unsubscribe
   }, [selectedContact, user])

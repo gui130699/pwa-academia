@@ -16,7 +16,7 @@ import type { ChatContact, ChatMessage } from '../types/chat'
 import type { Amizade, VinculoNotificacao } from '../types/notification'
 import type { UsuarioAluno, UsuarioProfessor } from '../types/user'
 
-function getConversationId(firstId: string, secondId: string) {
+export function getConversationId(firstId: string, secondId: string) {
   return [firstId, secondId].sort().join('_')
 }
 
@@ -130,6 +130,7 @@ export async function sendChatMessage(params: {
     {
       participantIds: [currentUserId, contact.id],
       participantNames: [currentUserName, contact.nome],
+      lastSenderId: currentUserId,
       updatedAt: serverTimestamp(),
     },
     { merge: true },
