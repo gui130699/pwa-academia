@@ -76,24 +76,24 @@ export async function getAlunoChatContacts(userId: string) {
 }
 
 export async function getProfessorChatContacts(userId: string) {
-  const snapshot = await getDocs(collection(db, 'notificacoes'))
+  const snapshot = await getDocs(
+    query(
+      collection(db, 'notificacoes'),
+      where('tipo', '==', 'vinculo_professor'),
+      where('professorId', '==', userId),
+      where('status', '==', 'aceito'),
+    ),
+  )
   const contacts: ChatContact[] = []
 
   snapshot.docs.forEach((currentDoc) => {
     const data = currentDoc.data() as VinculoNotificacao
-
-    if (
-      data.tipo === 'vinculo_professor' &&
-      data.professorId === userId &&
-      data.status === 'aceito'
-    ) {
-      contacts.push({
-        id: data.alunoId,
-        nome: data.alunoNome,
-        email: data.alunoEmail,
-        tipo: 'aluno',
-      })
-    }
+    contacts.push({
+      id: data.alunoId,
+      nome: data.alunoNome,
+      email: data.alunoEmail,
+      tipo: 'aluno',
+    })
   })
 
   return contacts

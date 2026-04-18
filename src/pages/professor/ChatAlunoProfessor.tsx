@@ -1,5 +1,5 @@
 import { MessageCircleMore, Send } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { getProfessorChatContacts, sendChatMessage, subscribeToMessages } from '../../services/chatService'
 import type { ChatContact, ChatMessage } from '../../types/chat'
@@ -12,6 +12,11 @@ export function ChatAlunoProfessor() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [text, setText] = useState('')
   const [feedback, setFeedback] = useState('')
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   useEffect(() => {
     async function loadContacts() {
@@ -108,9 +113,15 @@ export function ChatAlunoProfessor() {
                     >
                       <strong>{message.remetenteNome}</strong>
                       <span>{message.texto}</span>
+                      {message.criadoEm ? (
+                        <time className="chat-bubble__time">
+                          {new Date((message.criadoEm as { seconds: number }).seconds * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </time>
+                      ) : null}
                     </article>
                   ))
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               <div className="chat-compose">
@@ -120,6 +131,7 @@ export function ChatAlunoProfessor() {
                   placeholder="Digite sua mensagem"
                   value={text}
                   onChange={(event) => setText(event.target.value)}
+                  onKeyDown={(event) => { if (event.key === 'Enter') void handleSendMessage() }}
                 />
                 <button className="btn btn-primary request-card__button" type="button" onClick={handleSendMessage}>
                   <Send size={16} />

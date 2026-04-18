@@ -1122,6 +1122,12 @@ strong {
   border-color: rgba(74, 222, 128, 0.28);
 }
 
+.chat-bubble__time {
+  font-size: 0.68rem;
+  opacity: 0.5;
+  justify-self: end;
+}
+
 .chat-compose {
   display: grid;
   grid-template-columns: 1fr auto;
