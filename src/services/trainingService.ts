@@ -42,6 +42,7 @@ function normalizeTrainingItems(items: TreinoItem[]) {
       id: item.id,
       exerciseIds,
       exerciseNames,
+      videoUrls: item.videoUrls ?? [],
       series,
       repeticoes,
       repeticaoPersonalizada,

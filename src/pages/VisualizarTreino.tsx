@@ -1,4 +1,4 @@
-import { ArrowLeft, Dumbbell, Layers, Target, Weight } from 'lucide-react'
+import { ArrowLeft, Dumbbell, ExternalLink, Layers, Target, Weight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
@@ -87,14 +87,31 @@ export function VisualizarTreino() {
               <div className="treino-card__body">
                 <div className="treino-card__names">
                   {isMerged ? (
-                    item.exerciseNames.map((name, nameIndex) => (
-                      <span key={nameIndex} className="treino-card__name">
-                        {nameIndex > 0 && <span className="treino-card__merge-sep">+</span>}
-                        {name}
-                      </span>
-                    ))
+                    item.exerciseNames.map((name, nameIndex) => {
+                      const videoUrl = item.videoUrls?.[nameIndex]
+                      return (
+                        <span key={nameIndex} className="treino-card__name-wrap">
+                          {nameIndex > 0 && <span className="treino-card__merge-sep">+</span>}
+                          <span className="treino-card__name">{name}</span>
+                          {videoUrl ? (
+                            <a className="treino-card__video" href={videoUrl} target="_blank" rel="noreferrer">
+                              <ExternalLink size={12} />
+                              Vídeo
+                            </a>
+                          ) : null}
+                        </span>
+                      )
+                    })
                   ) : (
-                    <span className="treino-card__name">{item.exerciseNames[0] ?? '—'}</span>
+                    <span className="treino-card__name-wrap">
+                      <span className="treino-card__name">{item.exerciseNames[0] ?? '—'}</span>
+                      {item.videoUrls?.[0] ? (
+                        <a className="treino-card__video" href={item.videoUrls[0]} target="_blank" rel="noreferrer">
+                          <ExternalLink size={12} />
+                          Vídeo
+                        </a>
+                      ) : null}
+                    </span>
                   )}
                 </div>
 

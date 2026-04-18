@@ -186,6 +186,7 @@ export function MontarTreinoProfessor() {
           id: item.localId,
           exerciseIds: selectedExercises.map((exercise) => exercise.id),
           exerciseNames: selectedExercises.map((exercise) => exercise.nome ?? exercise.descricao),
+          videoUrls: selectedExercises.map((exercise) => exercise.videoInstrucaoUrl ?? ''),
           series: item.series,
           repeticoes: item.customRepetitionEnabled ? '' : item.repetitions,
           repeticaoPersonalizada: item.customRepetitionEnabled
