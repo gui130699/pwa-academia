@@ -2,7 +2,9 @@ import { ArrowLeft, Dumbbell, ExternalLink, Layers, Target, Weight } from 'lucid
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { getExercises } from '../services/exerciseService'
 import { getTrainingPlanById } from '../services/trainingService'
+import type { Exercicio } from '../types/exercise'
 import type { TreinoMontado } from '../types/training'
 import { getFirebaseErrorMessage } from '../utils/firebaseErrorMessages'
 
@@ -11,6 +13,7 @@ export function VisualizarTreino() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const [plan, setPlan] = useState<TreinoMontado | null>(null)
+  const [exerciseMap, setExerciseMap] = useState<Map<string, Exercicio>>(new Map())
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -24,12 +27,13 @@ export function VisualizarTreino() {
       return
     }
 
-    getTrainingPlanById(id)
-      .then((result) => {
+    Promise.all([getTrainingPlanById(id), getExercises()])
+      .then(([result, exercises]) => {
         if (!result) {
           setError('Treino não encontrado.')
         } else {
           setPlan(result)
+          setExerciseMap(new Map(exercises.map((ex) => [ex.id, ex])))
         }
       })
       .catch((err) => {
@@ -37,6 +41,11 @@ export function VisualizarTreino() {
       })
       .finally(() => setLoading(false))
   }, [id])
+
+  function getVideoUrl(exerciseId: string, savedUrl?: string): string {
+    if (savedUrl) return savedUrl
+    return exerciseMap.get(exerciseId)?.videoInstrucaoUrl ?? ''
+  }
 
   const pageClass = isProfessor ? 'professor-page fade-in-panel' : 'aluno-page fade-in-panel'
 
@@ -88,7 +97,7 @@ export function VisualizarTreino() {
                 <div className="treino-card__names">
                   {isMerged ? (
                     item.exerciseNames.map((name, nameIndex) => {
-                      const videoUrl = item.videoUrls?.[nameIndex]
+                      const videoUrl = getVideoUrl(item.exerciseIds[nameIndex] ?? '', item.videoUrls?.[nameIndex])
                       return (
                         <span key={nameIndex} className="treino-card__name-wrap">
                           {nameIndex > 0 && <span className="treino-card__merge-sep">+</span>}
@@ -103,15 +112,20 @@ export function VisualizarTreino() {
                       )
                     })
                   ) : (
-                    <span className="treino-card__name-wrap">
-                      <span className="treino-card__name">{item.exerciseNames[0] ?? '—'}</span>
-                      {item.videoUrls?.[0] ? (
-                        <a className="treino-card__video" href={item.videoUrls[0]} target="_blank" rel="noreferrer">
-                          <ExternalLink size={12} />
-                          Vídeo
-                        </a>
-                      ) : null}
-                    </span>
+                    (() => {
+                      const videoUrl = getVideoUrl(item.exerciseIds[0] ?? '', item.videoUrls?.[0])
+                      return (
+                        <span className="treino-card__name-wrap">
+                          <span className="treino-card__name">{item.exerciseNames[0] ?? '—'}</span>
+                          {videoUrl ? (
+                            <a className="treino-card__video" href={videoUrl} target="_blank" rel="noreferrer">
+                              <ExternalLink size={12} />
+                              Vídeo
+                            </a>
+                          ) : null}
+                        </span>
+                      )
+                    })()
                   )}
                 </div>
 
