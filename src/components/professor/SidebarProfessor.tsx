@@ -4,12 +4,14 @@ import {
   ClipboardList,
   FolderTree,
   LayoutDashboard,
+  LogOut,
   MessageCircle,
   PlusSquare,
   Settings,
   Users,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 const menuItems = [
   { to: '/professor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +26,8 @@ const menuItems = [
 ]
 
 export function SidebarProfessor() {
+  const { signOutUser } = useAuth()
+
   return (
     <aside className="professor-sidebar">
       <div className="professor-sidebar__brand">
@@ -56,8 +60,10 @@ export function SidebarProfessor() {
       </nav>
 
       <div className="professor-sidebar__footer">
-        <span className="eyebrow">Fitness premium</span>
-        <p>Ambiente visual preparado para gestão e acompanhamento dos alunos.</p>
+        <button className="sidebar-logout-btn" type="button" onClick={() => signOutUser()}>
+          <LogOut size={16} />
+          Sair
+        </button>
       </div>
     </aside>
   )

@@ -4,12 +4,14 @@ import {
   Dumbbell,
   LayoutDashboard,
   LineChart,
+  LogOut,
   MessageCircleMore,
   Settings,
   Target,
   Users,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 const menuItems = [
   { to: '/aluno/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +26,8 @@ const menuItems = [
 ]
 
 export function SidebarAluno() {
+  const { signOutUser } = useAuth()
+
   return (
     <aside className="aluno-sidebar">
       <div className="aluno-sidebar__brand">
@@ -56,8 +60,10 @@ export function SidebarAluno() {
       </nav>
 
       <div className="aluno-sidebar__footer">
-        <span className="eyebrow">Fitness premium</span>
-        <p>Estrutura visual pronta para as próximas etapas do projeto.</p>
+        <button className="sidebar-logout-btn" type="button" onClick={() => signOutUser()}>
+          <LogOut size={16} />
+          Sair
+        </button>
       </div>
     </aside>
   )
