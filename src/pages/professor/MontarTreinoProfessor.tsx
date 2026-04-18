@@ -66,6 +66,7 @@ export function MontarTreinoProfessor() {
   const [trainingName, setTrainingName] = useState('Treino A')
   const [items, setItems] = useState<LocalTreinoItem[]>([createEmptyItem()])
   const [feedback, setFeedback] = useState('')
+  const [isError, setIsError] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   async function loadData() {
@@ -191,6 +192,7 @@ export function MontarTreinoProfessor() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback('')
+    setIsError(false)
     setIsSaving(true)
 
     try {
@@ -198,13 +200,29 @@ export function MontarTreinoProfessor() {
         throw new Error('Apenas professores podem montar treinos.')
       }
 
-      const selectedStudent = linkedStudents.find((student) => student.uid === selectedStudentId)
+      // Em modo edição usa diretamente o aluno do plano; caso contrário exige seleção
+      let selectedStudent = linkedStudents.find((student) => student.uid === selectedStudentId)
+
+      if (!selectedStudent && editingPlan) {
+        selectedStudent = {
+          uid: editingPlan.alunoId,
+          nome: editingPlan.alunoNome,
+          email: '',
+        }
+      }
 
       if (!selectedStudent) {
         throw new Error('Selecione um aluno vinculado.')
       }
 
-      const formattedItems = items.map((item) => {
+      // Salva apenas itens que têm exercício selecionado (ignora cards vazios abertos)
+      const confirmedItems = items.filter((item) => item.mainExerciseId)
+
+      if (confirmedItems.length === 0) {
+        throw new Error('Adicione pelo menos um exercício antes de salvar.')
+      }
+
+      const formattedItems = confirmedItems.map((item) => {
         const selectedExerciseIds = [item.mainExerciseId, ...item.extraExerciseIds]
           .filter(Boolean)
           .filter((exerciseId, index, array) => array.indexOf(exerciseId) === index)
@@ -258,6 +276,7 @@ export function MontarTreinoProfessor() {
       }
       await loadData()
     } catch (error) {
+      setIsError(true)
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível salvar o treino.'))
     } finally {
       setIsSaving(false)
@@ -278,7 +297,7 @@ export function MontarTreinoProfessor() {
       <h2>{editingPlan ? 'Editar treino' : 'Montar treino do aluno'}</h2>
       <p>{editingPlan ? 'Altere os exercícios, séries, repetições e carga e salve.' : 'Selecione um aluno vinculado, escolha os exercícios e monte a ficha com repetições, carga e observações.'}</p>
 
-      {feedback ? <div className="info-banner success-banner panel-feedback">{feedback}</div> : null}
+      {feedback ? <div className={`info-banner panel-feedback ${isError ? 'error-banner' : 'success-banner'}`}>{feedback}</div> : null}
 
       <form className="auth-form section-block" onSubmit={handleSubmit}>
         <div className="auth-grid">
@@ -585,7 +604,7 @@ export function MontarTreinoProfessor() {
         </div>
 
         <div className="section-actions">
-          <button className="btn btn-primary request-card__button" type="submit" disabled={isSaving || linkedStudents.length === 0}>
+          <button className="btn btn-primary request-card__button" type="submit" disabled={isSaving || (!editingPlan && linkedStudents.length === 0)}>
             <Save size={16} />
             {isSaving ? 'Salvando...' : editingPlan ? 'Salvar alterações' : 'Salvar treino'}
           </button>
