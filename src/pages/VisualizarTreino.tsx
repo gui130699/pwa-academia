@@ -1,4 +1,4 @@
-import { ArrowLeft, Dumbbell, ExternalLink, Layers, Target, Weight } from 'lucide-react'
+import { ArrowLeft, Dumbbell, ExternalLink, Layers, Pencil, Target, Weight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
@@ -165,6 +165,16 @@ export function VisualizarTreino() {
       </div>
 
       <div className="section-actions" style={{ marginTop: 24 }}>
+        {isProfessor ? (
+          <button
+            className="btn btn-secondary request-card__button"
+            type="button"
+            onClick={() => navigate('/professor/montar-treino', { state: { plan } })}
+          >
+            <Pencil size={16} />
+            Editar treino
+          </button>
+        ) : null}
         <button className="btn btn-ghost request-card__button" type="button" onClick={() => navigate(backPath)}>
           <ArrowLeft size={16} />
           Voltar

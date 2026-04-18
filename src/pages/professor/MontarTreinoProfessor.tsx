@@ -1,10 +1,10 @@
 import { ArrowLeft, PlusSquare, Save, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { getExercises, getMuscleGroups } from '../../services/exerciseService'
 import { getProfessorLinkRequests } from '../../services/linkRequestService'
-import { createTrainingPlan, getProfessorTrainingPlans } from '../../services/trainingService'
+import { createTrainingPlan, getProfessorTrainingPlans, updateTrainingPlan } from '../../services/trainingService'
 import type { Exercicio, GrupoMuscular } from '../../types/exercise'
 import type { TreinoMontado } from '../../types/training'
 import type { UsuarioProfessor } from '../../types/user'
@@ -50,7 +50,12 @@ function createEmptyItem(): LocalTreinoItem {
 
 export function MontarTreinoProfessor() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { profile } = useAuth()
+  const editingPlan = useMemo(
+    () => ((location.state as { plan?: TreinoMontado } | null)?.plan ?? null),
+    [location.state],
+  )
   const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([])
   const [groups, setGroups] = useState<GrupoMuscular[]>([])
   const [exercises, setExercises] = useState<Exercicio[]>([])
@@ -98,6 +103,33 @@ export function MontarTreinoProfessor() {
   useEffect(() => {
     void loadData()
   }, [profile])
+
+  useEffect(() => {
+    if (!editingPlan) return
+
+    setTrainingName(editingPlan.nome)
+    setSelectedStudentId(editingPlan.alunoId)
+    setItems(
+      editingPlan.itens.map((item) => {
+        const hasCustom = !!item.repeticaoPersonalizada
+        const customValues = item.repeticaoPersonalizadaValores ?? []
+        return {
+          localId: item.id || crypto.randomUUID(),
+          groupId: item.grupoMuscularId ?? '',
+          mainExerciseId: item.exerciseIds[0] ?? '',
+          extraExerciseIds: item.mesclarExercicios ? item.exerciseIds.slice(1) : [],
+          mergeEnabled: item.mesclarExercicios,
+          series: item.series ?? '',
+          repetitions: hasCustom ? '' : item.repeticoes,
+          customRepetitionEnabled: hasCustom,
+          customRepetitionCount: hasCustom ? String(customValues.length || 4) : '4',
+          customRepetitionValues: hasCustom && customValues.length > 0 ? customValues : ['', '', '', ''],
+          observations: item.observacoes ?? '',
+          load: item.carga ?? '',
+        }
+      }),
+    )
+  }, [editingPlan])
 
   function updateItem(localId: string, patch: Partial<LocalTreinoItem>) {
     setItems((current) => current.map((item) => (item.localId === localId ? { ...item, ...patch } : item)))
@@ -203,18 +235,29 @@ export function MontarTreinoProfessor() {
         }
       })
 
-      await createTrainingPlan({
-        nome: trainingName,
-        alunoId: selectedStudent.uid,
-        alunoNome: selectedStudent.nome,
-        professorId: (profile as UsuarioProfessor).uid,
-        professorNome: (profile as UsuarioProfessor).nomeCompleto,
-        itens: formattedItems,
-      })
-
-      setFeedback(`Treino salvo com sucesso para ${selectedStudent.nome}.`)
-      setTrainingName('Treino A')
-      setItems([createEmptyItem()])
+      if (editingPlan?.id) {
+        await updateTrainingPlan(editingPlan.id, {
+          nome: trainingName,
+          alunoId: selectedStudent.uid,
+          alunoNome: selectedStudent.nome,
+          professorId: (profile as UsuarioProfessor).uid,
+          professorNome: (profile as UsuarioProfessor).nomeCompleto,
+          itens: formattedItems,
+        })
+        setFeedback('Treino atualizado com sucesso.')
+      } else {
+        await createTrainingPlan({
+          nome: trainingName,
+          alunoId: selectedStudent.uid,
+          alunoNome: selectedStudent.nome,
+          professorId: (profile as UsuarioProfessor).uid,
+          professorNome: (profile as UsuarioProfessor).nomeCompleto,
+          itens: formattedItems,
+        })
+        setFeedback(`Treino salvo com sucesso para ${selectedStudent.nome}.`)
+        setTrainingName('Treino A')
+        setItems([createEmptyItem()])
+      }
       await loadData()
     } catch (error) {
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível salvar o treino.'))
@@ -234,8 +277,8 @@ export function MontarTreinoProfessor() {
   return (
     <section className="professor-page fade-in-panel">
       <span className="eyebrow">Montar treino</span>
-      <h2>Montar treino do aluno</h2>
-      <p>Selecione um aluno vinculado, escolha os exercícios e monte a ficha com repetições, carga e observações.</p>
+      <h2>{editingPlan ? 'Editar treino' : 'Montar treino do aluno'}</h2>
+      <p>{editingPlan ? 'Altere os exercícios, séries, repetições e carga e salve.' : 'Selecione um aluno vinculado, escolha os exercícios e monte a ficha com repetições, carga e observações.'}</p>
 
       {feedback ? <div className="info-banner success-banner panel-feedback">{feedback}</div> : null}
 
@@ -495,7 +538,7 @@ export function MontarTreinoProfessor() {
         <div className="section-actions">
           <button className="btn btn-primary request-card__button" type="submit" disabled={isSaving || linkedStudents.length === 0}>
             <Save size={16} />
-            {isSaving ? 'Salvando...' : 'Salvar treino'}
+            {isSaving ? 'Salvando...' : editingPlan ? 'Salvar alterações' : 'Salvar treino'}
           </button>
 
           <button

@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import type { NovoTreinoPayload, TreinoItem, TreinoMontado } from '../types/training'
 
@@ -110,4 +110,24 @@ export async function getTrainingPlanById(trainingId: string): Promise<TreinoMon
     id: snapshot.id,
     ...(snapshot.data() as Omit<TreinoMontado, 'id'>),
   }
+}
+
+export async function updateTrainingPlan(trainingId: string, payload: NovoTreinoPayload) {
+  const nome = payload.nome.trim() || 'Treino personalizado'
+
+  if (!payload.alunoId || !payload.professorId) {
+    throw new Error('Selecione um aluno vinculado para salvar o treino.')
+  }
+
+  const itens = normalizeTrainingItems(payload.itens)
+
+  await updateDoc(doc(db, 'treinos', trainingId), {
+    nome,
+    alunoId: payload.alunoId,
+    alunoNome: payload.alunoNome,
+    professorId: payload.professorId,
+    professorNome: payload.professorNome,
+    itens,
+    atualizadoEm: serverTimestamp(),
+  })
 }
