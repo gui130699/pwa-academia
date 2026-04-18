@@ -1,4 +1,4 @@
-import { ArrowLeft, PlusSquare, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Pencil, PlusSquare, Save, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
@@ -29,6 +29,7 @@ interface LocalTreinoItem {
   customRepetitionValues: string[]
   observations: string
   load: string
+  confirmed: boolean
 }
 
 function createEmptyItem(): LocalTreinoItem {
@@ -45,6 +46,7 @@ function createEmptyItem(): LocalTreinoItem {
     customRepetitionValues: ['', '', '', ''],
     observations: '',
     load: '',
+    confirmed: false,
   }
 }
 
@@ -126,10 +128,24 @@ export function MontarTreinoProfessor() {
           customRepetitionValues: hasCustom && customValues.length > 0 ? customValues : ['', '', '', ''],
           observations: item.observacoes ?? '',
           load: item.carga ?? '',
+          confirmed: true,
         }
       }),
     )
   }, [editingPlan])
+
+  function confirmItem(localId: string) {
+    setItems((current) =>
+      current.map((item) => (item.localId === localId ? { ...item, confirmed: true } : item)),
+    )
+    setItems((current) => {
+      const last = current[current.length - 1]
+      if (last && last.confirmed) {
+        return [...current, createEmptyItem()]
+      }
+      return current
+    })
+  }
 
   function updateItem(localId: string, patch: Partial<LocalTreinoItem>) {
     setItems((current) => current.map((item) => (item.localId === localId ? { ...item, ...patch } : item)))
@@ -298,7 +314,12 @@ export function MontarTreinoProfessor() {
           <button
             className="btn btn-secondary request-card__button"
             type="button"
-            onClick={() => setItems((current) => [...current, createEmptyItem()])}
+            onClick={() => {
+              const last = items[items.length - 1]
+              if (!last || last.confirmed) {
+                setItems((current) => [...current, createEmptyItem()])
+              }
+            }}
           >
             <PlusSquare size={16} />
             Adicionar exercício
@@ -310,6 +331,39 @@ export function MontarTreinoProfessor() {
             const filteredOptions = item.groupId
               ? exercises.filter((exercise) => exercise.grupoMuscularId === item.groupId)
               : exercises
+
+            const mainExerciseName = exercises.find((e) => e.id === item.mainExerciseId)?.nome
+              ?? exercises.find((e) => e.id === item.mainExerciseId)?.descricao
+              ?? ''
+
+            if (item.confirmed) {
+              return (
+                <article key={item.localId} className="compact-row">
+                  <div className="compact-row__main">
+                    <strong>Exercício {index + 1}{mainExerciseName ? ` — ${mainExerciseName}` : ''}</strong>
+                    {item.series ? <span>{item.series}x {item.customRepetitionEnabled ? item.customRepetitionValues.join('-') : item.repetitions} rep{item.load ? ` • ${item.load}` : ''}</span> : null}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      className="btn btn-ghost request-card__button"
+                      type="button"
+                      style={{ minWidth: 'unset', padding: '6px 10px' }}
+                      onClick={() => updateItem(item.localId, { confirmed: false })}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      className="btn btn-ghost request-card__button"
+                      type="button"
+                      style={{ minWidth: 'unset', padding: '6px 10px' }}
+                      onClick={() => setItems((current) => current.length > 1 ? current.filter((i) => i.localId !== item.localId) : current)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </article>
+              )
+            }
 
             return (
               <article key={item.localId} className="request-card request-card--compact">
@@ -506,14 +560,25 @@ export function MontarTreinoProfessor() {
                   </div>
                 </div>
 
-                <button
-                  className="btn btn-ghost request-card__button"
-                  type="button"
-                  onClick={() => setItems((current) => (current.length > 1 ? current.filter((currentItem) => currentItem.localId !== item.localId) : current))}
-                >
-                  <Trash2 size={16} />
-                  Remover
-                </button>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    className="btn btn-primary request-card__button"
+                    type="button"
+                    onClick={() => confirmItem(item.localId)}
+                  >
+                    <CheckCircle size={16} />
+                    Finalizar exercício
+                  </button>
+
+                  <button
+                    className="btn btn-ghost request-card__button"
+                    type="button"
+                    onClick={() => setItems((current) => (current.length > 1 ? current.filter((currentItem) => currentItem.localId !== item.localId) : current))}
+                  >
+                    <Trash2 size={16} />
+                    Remover
+                  </button>
+                </div>
               </article>
             )
           })}
