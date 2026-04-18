@@ -20,6 +20,7 @@ export function CadastroExercicioProfessor() {
   )
   const [groups, setGroups] = useState<GrupoMuscular[]>([])
   const [feedback, setFeedback] = useState('')
+  const [isError, setIsError] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState({
     nome: '',
@@ -50,13 +51,14 @@ export function CadastroExercicioProfessor() {
       nome: editingExercise.nome ?? '',
       descricao: editingExercise.descricao,
       grupoMuscularId: editingExercise.grupoMuscularId,
-      videoInstrucaoUrl: editingExercise.videoInstrucaoUrl,
+      videoInstrucaoUrl: editingExercise.videoInstrucaoUrl ?? '',
     })
   }, [editingExercise])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback('')
+    setIsError(false)
     setIsSaving(true)
 
     try {
@@ -85,6 +87,7 @@ export function CadastroExercicioProfessor() {
         setFeedback('Exercício cadastrado com sucesso.')
       }
     } catch (error) {
+      setIsError(true)
       setFeedback(getFirebaseErrorMessage(error, 'Não foi possível salvar o exercício.'))
     } finally {
       setIsSaving(false)
@@ -98,7 +101,7 @@ export function CadastroExercicioProfessor() {
       <p>
         {editingExercise
           ? 'Atualize as informações do exercício e salve as alterações.'
-          : 'Preencha o nome do exercício, a descrição, selecione o grupo muscular e cole o link do vídeo de instrução.'}
+          : 'Preencha o nome do exercício, a descrição e selecione o grupo muscular. O vídeo de instrução é opcional.'}
       </p>
 
       {groups.length === 0 ? (
@@ -107,7 +110,9 @@ export function CadastroExercicioProfessor() {
         </div>
       ) : null}
 
-      {feedback ? <div className="info-banner success-banner panel-feedback">{feedback}</div> : null}
+      {feedback ? (
+        <div className={`info-banner panel-feedback ${isError ? 'error-banner' : 'success-banner'}`}>{feedback}</div>
+      ) : null}
 
       <form className="auth-form section-block" onSubmit={handleSubmit}>
         <label className="form-field">
@@ -164,11 +169,11 @@ export function CadastroExercicioProfessor() {
         </label>
 
         <label className="form-field">
-          <span>Vídeo de instrução</span>
+          <span>Vídeo de instrução <small>(opcional)</small></span>
           <input
             className="app-input"
-            type="url"
-            placeholder="Cole aqui o link do vídeo"
+            type="text"
+            placeholder="Ex.: https://youtube.com/watch?v=..."
             value={formData.videoInstrucaoUrl}
             onChange={(event) =>
               setFormData((current) => ({

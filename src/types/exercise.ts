@@ -10,7 +10,7 @@ export interface Exercicio {
   descricao: string
   grupoMuscularId: string
   grupoMuscularNome: string
-  videoInstrucaoUrl: string
+  videoInstrucaoUrl?: string
   criadoPorId?: string
   criadoPorNome?: string
   criadoEm?: unknown
@@ -21,7 +21,7 @@ export interface NovoExercicioPayload {
   descricao: string
   grupoMuscularId: string
   grupoMuscularNome: string
-  videoInstrucaoUrl: string
+  videoInstrucaoUrl?: string
   criadoPorId?: string
   criadoPorNome?: string
 }

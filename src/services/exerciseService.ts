@@ -53,7 +53,7 @@ export async function getExercises(): Promise<Exercicio[]> {
 function validateExercisePayload(payload: NovoExercicioPayload) {
   const name = payload.nome.trim()
   const description = payload.descricao.trim()
-  const videoUrl = payload.videoInstrucaoUrl.trim()
+  const videoUrl = (payload.videoInstrucaoUrl ?? '').trim()
 
   if (!name) {
     throw new Error('Informe o nome do exercício.')
@@ -67,14 +67,12 @@ function validateExercisePayload(payload: NovoExercicioPayload) {
     throw new Error('Selecione um grupo muscular.')
   }
 
-  if (!videoUrl) {
-    throw new Error('Informe o link do vídeo de instrução.')
-  }
-
-  try {
-    new URL(videoUrl)
-  } catch {
-    throw new Error('Informe um link de vídeo válido.')
+  if (videoUrl) {
+    try {
+      new URL(videoUrl)
+    } catch {
+      throw new Error('Informe um link de vídeo válido (ex.: https://youtube.com/...).')
+    }
   }
 
   return {
